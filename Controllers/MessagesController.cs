@@ -1,3 +1,4 @@
+using MessagesApi.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MessagesApi.Controllers;
@@ -6,14 +7,28 @@ namespace MessagesApi.Controllers;
 [Route("messages")]
 public class MessagesController : Controller
 {
+    private IMessagesRepository _messagesRepository;
+    
+    public MessagesController(IMessagesRepository messagesRepository)
+    {
+        _messagesRepository = messagesRepository;
+    }
+    
     [HttpGet(Name = "GetMessages")]
     public IEnumerable<Message> Get()
     {
-        return [new Message("1234", "Hello World!", MessageStatus.Unread)];
+        return _messagesRepository.GetMessages();
     }
+    
+    [HttpPost(Name = "AddMessage")]
+    public void Post([FromBody] Message message)
+    {
+        _messagesRepository.AddMessage(message);
+    }
+    
 }
 
-public readonly record struct Message(string id, string messageText, MessageStatus messageStatus);
+public readonly record struct Message(string Id, string messageText, MessageStatus messageStatus);
 
 public enum MessageStatus
 {
